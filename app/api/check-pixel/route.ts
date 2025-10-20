@@ -900,6 +900,10 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
       console.log('HTML contains aax:', html.toLowerCase().includes('aax'))
       console.log('HTML contains pixel ID:', html.toLowerCase().includes(pixelId.toLowerCase()))
       
+      // Check for GTM
+      console.log('HTML contains GTM:', html.toLowerCase().includes('googletagmanager'))
+      console.log('HTML contains dataLayer:', html.toLowerCase().includes('datalayer'))
+      
       // Show a sample of the HTML to see what's actually there
       const amznIndex = html.toLowerCase().indexOf('amzn')
       if (amznIndex > -1) {
@@ -914,6 +918,13 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
       if (amazonIndex > -1) {
         console.log('Found amazon at index:', amazonIndex)
         console.log('Context around amazon:', html.substring(Math.max(0, amazonIndex - 50), Math.min(html.length, amazonIndex + 200)))
+      }
+      
+      // Check for GTM
+      const gtmIndex = html.toLowerCase().indexOf('googletagmanager')
+      if (gtmIndex > -1) {
+        console.log('Found GTM at index:', gtmIndex)
+        console.log('Context around GTM:', html.substring(Math.max(0, gtmIndex - 50), Math.min(html.length, gtmIndex + 200)))
       }
     }
     
@@ -937,7 +948,9 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
         hasAmzn: html.toLowerCase().includes('amzn'),
         hasAmazonAdsystem: html.toLowerCase().includes('amazon-adsystem'),
         hasAax: html.toLowerCase().includes('aax'),
-        hasPixelId: html.toLowerCase().includes(pixelId.toLowerCase())
+        hasPixelId: html.toLowerCase().includes(pixelId.toLowerCase()),
+        hasGTM: html.toLowerCase().includes('googletagmanager'),
+        hasDataLayer: html.toLowerCase().includes('datalayer')
       }
     }
 
@@ -1023,7 +1036,9 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
           hasAmzn: html.toLowerCase().includes('amzn'),
           hasAmazonAdsystem: html.toLowerCase().includes('amazon-adsystem'),
           hasAax: html.toLowerCase().includes('aax'),
-          hasPixelId: html.toLowerCase().includes(pixelId.toLowerCase())
+          hasPixelId: html.toLowerCase().includes(pixelId.toLowerCase()),
+          hasGTM: html.toLowerCase().includes('googletagmanager'),
+          hasDataLayer: html.toLowerCase().includes('datalayer')
         }
       }
 
