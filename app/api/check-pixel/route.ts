@@ -890,7 +890,7 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
       const gtmInfrastructure = true
       
       // Layer 2: Platform-specific GTM patterns
-      const platformPatterns = {
+      const platformPatterns: Record<string, RegExp[]> = {
         'LinkedIn': [
           /linkedin\.com/i,
           /_linkedin_partner_id/i,
