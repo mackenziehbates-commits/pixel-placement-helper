@@ -244,7 +244,7 @@ export function PixelChecker({ onCheck, isLoading }: PixelCheckerProps) {
           </div>
           {formData.snippet && (formData.snippet.includes('""') || formData.snippet.includes('"') || formData.snippet.includes('"')) && (
             <div className="text-sm text-amber-600 bg-amber-50 p-2 rounded">
-              ⚠️ Detected smart quotes or doubled quotes. Click "Fix Quotes & Normalize" to clean up.
+              ⚠️ Detected smart quotes or doubled quotes. Click &quot;Fix Quotes & Normalize&quot; to clean up.
             </div>
           )}
         </div>
