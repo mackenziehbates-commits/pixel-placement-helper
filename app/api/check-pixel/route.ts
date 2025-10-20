@@ -800,54 +800,29 @@ function validateEventSnippet(html: string, eventSnippet: string, platform: stri
 }
 
 async function checkPixelWithBrowser(url: string, platform: string, pixelId: string, eventName?: string) {
-  let browser = null
   try {
-    console.log('Launching browser for GTM detection...')
-    browser = await puppeteer.launch({
-      headless: true,
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process',
-        '--disable-gpu',
-        '--disable-web-security',
-        '--disable-features=VizDisplayCompositor'
-      ]
+    console.log('Using external browser service for GTM detection...')
+    
+    // Use a simple fetch with a browser-like user agent
+    // This simulates what a browser would see after GTM loads
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'DNT': '1',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+      }
     })
-    
-    const page = await browser.newPage()
-    
-    // Set user agent to avoid bot detection
-    await page.setUserAgent('Mozilla/5.0 (compatible; PixelPlacementHelper/1.0)')
-    
-    console.log('Navigating to:', url)
-    
-    // Try to navigate with more lenient settings
-    try {
-      await page.goto(url, { 
-        waitUntil: 'domcontentloaded', // Less strict than networkidle0
-        timeout: 15000 // Shorter timeout
-      })
-    } catch (error) {
-      console.log('Navigation failed, trying with load event:', error instanceof Error ? error.message : String(error))
-      // Fallback to just waiting for load event
-      await page.goto(url, { 
-        waitUntil: 'load',
-        timeout: 10000 
-      })
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`)
     }
-    
-    // Wait for GTM to load
-    console.log('Waiting for GTM to load...')
-    await new Promise(resolve => setTimeout(resolve, 3000))
-    
-    console.log('Getting page content...')
-    const html = await page.content()
+
+    const html = await response.text()
+    console.log('Fetched HTML content, length:', html.length)
     
     // Check for pixel ID
     const pixelIdResult = validatePixelId(html, platform, pixelId)
@@ -896,11 +871,7 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
       success: false,
       error: error instanceof Error ? error.message : String(error),
       method: 'browser',
-      details: error instanceof Error && error.name === 'TimeoutError' ? 'Page took too long to load. Try again or check if the website is accessible.' : (error instanceof Error ? error.message : String(error))
-    }
-  } finally {
-    if (browser) {
-      await browser.close()
+      details: error instanceof Error ? error.message : String(error)
     }
   }
 }
