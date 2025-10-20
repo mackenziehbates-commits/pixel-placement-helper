@@ -81,13 +81,13 @@ export async function POST(request: NextRequest) {
         
         // Check if this is a GTM detection result
         if (browserResult.method === 'browser-gtm') {
-          console.log('GTM detection successful')
+          console.log('GTM detection - infrastructure found but pixel verification limited')
           return NextResponse.json({
             status: 'pass',
-            summary: 'Pixel detected via GTM (Google Tag Manager)',
-            detectedPlacement: 'Found via GTM detection',
-            matchedCode: pixelIdResult?.context || 'Pixel loaded via GTM (detected GTM and dataLayer)',
-            troubleshooting: 'Pixel is loaded dynamically via GTM',
+            summary: 'GTM detected but pixel verification limited',
+            detectedPlacement: 'GTM infrastructure found',
+            matchedCode: pixelIdResult?.context || 'GTM detected but pixel verification not possible with current method',
+            troubleshooting: 'GTM is installed but cannot verify specific pixel due to dynamic loading. Use browser developer tools to verify pixel firing.',
             issues: [],
             pixelIdResult,
             method: 'browser-gtm',
@@ -882,31 +882,31 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
     const hasDataLayer = html.toLowerCase().includes('datalayer')
     console.log('GTM present:', hasGTM, 'DataLayer present:', hasDataLayer)
     
-    // For GTM placements, check if GTM is present and assume pixel is configured
+    // For GTM placements, check if GTM is present but be honest about limitations
     if (hasGTM && hasDataLayer) {
-      console.log('GTM detected - assuming pixel is correctly configured in GTM')
+      console.log('GTM detected - but cannot verify specific pixel due to dynamic loading')
       
-      // For GTM, we can't actually wait for the pixel to load dynamically
-      // So we assume if GTM + DataLayer are present, the pixel is configured correctly
+      // For GTM, we can detect the infrastructure but not the specific pixel
+      // This is a limitation of static HTML fetching vs dynamic JavaScript execution
       return {
         success: true,
         html,
         pixelIdResult: {
-          found: true,
-          foundId: pixelId,
+          found: false,
+          foundId: null,
           expectedId: pixelId,
-          match: true,
+          match: false,
           mismatch: false,
-          context: 'Pixel configured in GTM (detected GTM and dataLayer)'
+          context: 'GTM detected but pixel verification not possible with current method'
         },
         vendorHit: null,
         externalHit: null,
         method: 'browser-gtm',
         debugInfo: {
           htmlLength: html.length,
-          pixelIdFound: true,
-          pixelIdMatch: true,
-          foundId: pixelId,
+          pixelIdFound: false,
+          pixelIdMatch: false,
+          foundId: null,
           expectedId: pixelId,
           vendorHit: false,
           externalHit: false,
@@ -915,7 +915,7 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
           pixelId: pixelId,
           gtmDetected: true,
           dataLayerDetected: true,
-          note: 'GTM loads pixels dynamically - cannot verify actual pixel ID in static HTML'
+          limitation: 'GTM loads pixels dynamically after page load - cannot verify specific pixel ID with static HTML fetch'
         }
       }
     }
