@@ -18,7 +18,7 @@ export function CheckResult({ result, isLoading }: CheckResultProps) {
   if (!result) {
     return (
       <div className="text-center py-8 text-gray-500">
-        Enter pixel details and click &ldquo;Check Pixel Placement&rdquo; to see results
+        Enter pixel details and click Check Pixel Placement to see results
       </div>
     )
   }
