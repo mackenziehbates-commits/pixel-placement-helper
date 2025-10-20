@@ -831,7 +831,7 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
         timeout: 15000 // Shorter timeout
       })
     } catch (error) {
-      console.log('Navigation failed, trying with load event:', error.message)
+      console.log('Navigation failed, trying with load event:', error instanceof Error ? error.message : String(error))
       // Fallback to just waiting for load event
       await page.goto(url, { 
         waitUntil: 'load',
@@ -891,9 +891,9 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
     console.error('Browser automation error:', error)
     return {
       success: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
       method: 'browser',
-      details: error.name === 'TimeoutError' ? 'Page took too long to load. Try again or check if the website is accessible.' : error.message
+      details: error instanceof Error && error.name === 'TimeoutError' ? 'Page took too long to load. Try again or check if the website is accessible.' : (error instanceof Error ? error.message : String(error))
     }
   } finally {
     if (browser) {
