@@ -953,8 +953,11 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
       const successLayers = Object.values(verificationLayers).filter(Boolean).length
       const totalLayers = Object.keys(verificationLayers).length
       
-      if (successLayers >= 2) { // Need at least 2 layers to pass
-        console.log(`GTM verification passed: ${successLayers}/${totalLayers} layers`)
+      // For GTM, we need GTM infrastructure + platform patterns + pixel ID verification
+      const hasRequiredLayers = gtmInfrastructure && platformPatternFound && pixelIdInGTM
+      
+      if (hasRequiredLayers) { // Need GTM + platform + pixel ID
+        console.log(`GTM verification passed: GTM + platform + pixel ID verified`)
         return {
           success: true,
           html,
@@ -964,7 +967,7 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
             expectedId: pixelId,
             match: true,
             mismatch: false,
-            context: `GTM verification passed (${successLayers}/${totalLayers} layers)`
+            context: `GTM verification passed: GTM + platform + pixel ID verified`
           },
           vendorHit: null,
           externalHit: null,
@@ -989,7 +992,7 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
           }
         }
       } else {
-        console.log(`GTM verification failed: ${successLayers}/${totalLayers} layers`)
+        console.log(`GTM verification failed: missing required layers`)
         return {
           success: false,
           html,
@@ -997,7 +1000,7 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
           vendorHit: null,
           externalHit: null,
           method: 'browser-gtm',
-          error: `GTM detected but insufficient verification (${successLayers}/${totalLayers} layers)`,
+          error: `GTM detected but pixel ID not found in loaded content`,
           debugInfo: {
             htmlLength: html.length,
             pixelIdFound: pixelIdInGTM,
