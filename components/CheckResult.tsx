@@ -1,11 +1,14 @@
 'use client'
 
+import { useState } from 'react'
+
 interface CheckResultProps {
   result: any
   isLoading: boolean
 }
 
 export function CheckResult({ result, isLoading }: CheckResultProps) {
+  const [showDebugInfo, setShowDebugInfo] = useState(false)
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -177,15 +180,34 @@ export function CheckResult({ result, isLoading }: CheckResultProps) {
         </div>
       )}
 
-      {/* Debug Info */}
+      {/* Debug Info - Collapsible */}
       {result.debugInfo && (
         <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
-          <h4 className="text-sm font-medium text-gray-800 mb-2">Debug Information</h4>
-          <div className="text-xs text-gray-700">
-            <pre className="bg-white p-2 rounded border overflow-x-auto">
-              {JSON.stringify(result.debugInfo, null, 2)}
-            </pre>
-          </div>
+          <button
+            onClick={() => setShowDebugInfo(!showDebugInfo)}
+            className="flex items-center justify-between w-full text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+          >
+            <h4 className="text-sm font-medium text-gray-800">
+              Debug Information {!result.status || result.status === 'fail' ? '(Click to expand - please share if reporting issues)' : ''}
+            </h4>
+            <svg
+              className={`w-4 h-4 text-gray-500 transform transition-transform ${
+                showDebugInfo ? 'rotate-180' : ''
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {showDebugInfo && (
+            <div className="mt-3 text-xs text-gray-700">
+              <pre className="bg-white p-2 rounded border overflow-x-auto">
+                {JSON.stringify(result.debugInfo, null, 2)}
+              </pre>
+            </div>
+          )}
         </div>
       )}
 
