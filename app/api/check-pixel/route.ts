@@ -51,6 +51,15 @@ export async function POST(request: NextRequest) {
       console.log('Using browser automation for GTM placement')
       const browserResult = await checkPixelWithBrowser(url, platform, pixelId, eventName)
       
+      // Always add basic debug info
+      const basicDebugInfo = {
+        url: url,
+        platform: platform,
+        pixelId: pixelId,
+        method: 'GTM Placement',
+        timestamp: new Date().toISOString()
+      }
+      
       if (browserResult.success) {
         // Process browser results
         const { pixelIdResult, vendorHit, externalHit } = browserResult
@@ -65,7 +74,8 @@ export async function POST(request: NextRequest) {
             troubleshooting: 'No specific issues detected',
             issues: [],
             pixelIdResult,
-            method: 'browser'
+            method: 'browser',
+            debugInfo: { ...basicDebugInfo, ...browserResult.debugInfo }
           })
         }
         
@@ -106,7 +116,10 @@ export async function POST(request: NextRequest) {
           'The pixel was not found using browser automation. Please verify the GTM implementation is correct and the pixel is firing.',
         issues: [],
         method: 'browser',
-        debugInfo: browserResult.debugInfo || 'No debug info available'
+        debugInfo: { ...basicDebugInfo, ...(browserResult.debugInfo || {
+          error: 'No debug info available',
+          browserResult: browserResult
+        })}
       })
     }
 
