@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     // Choose detection method based on placement method
     if (placementMethod === 'HTML Placement') {
       console.log('Using static detection for HTML placement')
-      const staticResult = await checkPixelPlacement(root, url, snippet, placement, platform, eventName, triggerContains, pixelId, eventSnippet)
+      const staticResult = await checkPixelPlacement(root, url, snippet || '', placement, platform, eventName, triggerContains, pixelId, eventSnippet)
       return NextResponse.json({
         ...staticResult,
         method: 'static'
@@ -805,7 +805,16 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
     console.log('Launching browser for GTM detection...')
     browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu'
+      ]
     })
     
     const page = await browser.newPage()
