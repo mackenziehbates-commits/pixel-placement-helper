@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
             status: 'pass',
             summary: 'Pixel detected via GTM (Google Tag Manager)',
             detectedPlacement: 'Found via GTM detection',
-            matchedCode: pixelIdResult.context,
+            matchedCode: pixelIdResult?.context || 'Pixel loaded via GTM (detected GTM and dataLayer)',
             troubleshooting: 'Pixel is loaded dynamically via GTM',
             issues: [],
             pixelIdResult,
