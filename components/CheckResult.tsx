@@ -177,6 +177,18 @@ export function CheckResult({ result, isLoading }: CheckResultProps) {
         </div>
       )}
 
+      {/* Debug Info */}
+      {result.debugInfo && (
+        <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
+          <h4 className="text-sm font-medium text-gray-800 mb-2">Debug Information</h4>
+          <div className="text-xs text-gray-700">
+            <pre className="bg-white p-2 rounded border overflow-x-auto">
+              {JSON.stringify(result.debugInfo, null, 2)}
+            </pre>
+          </div>
+        </div>
+      )}
+
       {/* AI Explanation */}
       {result.aiExplanation && (
         <div className="bg-blue-50 border border-blue-200 rounded-md p-4">

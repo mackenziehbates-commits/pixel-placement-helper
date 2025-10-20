@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
         }
       }
       
-      // If browser detection failed, return error
+      // If browser detection failed, return error with debug info
       return NextResponse.json({
         status: 'fail',
         summary: browserResult.error ? `Browser automation failed: ${browserResult.details || browserResult.error}` : 'Pixel not found via browser automation (GTM)',
@@ -105,7 +105,8 @@ export async function POST(request: NextRequest) {
           `Browser automation error: ${browserResult.details || browserResult.error}` :
           'The pixel was not found using browser automation. Please verify the GTM implementation is correct and the pixel is firing.',
         issues: [],
-        method: 'browser'
+        method: 'browser',
+        debugInfo: browserResult.debugInfo || 'No debug info available'
       })
     }
 
@@ -903,13 +904,38 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
       }
     }
     
+    // Collect debug info
+    const debugInfo = {
+      htmlLength: html.length,
+      pixelIdFound: pixelIdResult.found,
+      pixelIdMatch: pixelIdResult.match,
+      foundId: pixelIdResult.foundId,
+      expectedId: pixelIdResult.expectedId,
+      vendorHit: !!vendorHit,
+      externalHit: !!externalHit,
+      hasPixelId: html.toLowerCase().includes(pixelId.toLowerCase()),
+      platform: platform,
+      pixelId: pixelId
+    }
+    
+    // Add Amazon-specific debug info
+    if (platform === 'Amazon') {
+      debugInfo.amazonDebug = {
+        hasAmzn: html.toLowerCase().includes('amzn'),
+        hasAmazonAdsystem: html.toLowerCase().includes('amazon-adsystem'),
+        hasAax: html.toLowerCase().includes('aax'),
+        hasPixelId: html.toLowerCase().includes(pixelId.toLowerCase())
+      }
+    }
+
     return {
       success: true,
       html,
       pixelIdResult,
       vendorHit,
       externalHit,
-      method: 'browser'
+      method: 'browser',
+      debugInfo
     }
     
   } catch (error) {
@@ -963,13 +989,39 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
         }
       }
       
+      // Collect debug info for fallback
+      const debugInfo = {
+        htmlLength: html.length,
+        pixelIdFound: pixelIdResult.found,
+        pixelIdMatch: pixelIdResult.match,
+        foundId: pixelIdResult.foundId,
+        expectedId: pixelIdResult.expectedId,
+        vendorHit: !!vendorHit,
+        externalHit: !!externalHit,
+        hasPixelId: html.toLowerCase().includes(pixelId.toLowerCase()),
+        platform: platform,
+        pixelId: pixelId,
+        method: 'fallback'
+      }
+      
+      // Add Amazon-specific debug info
+      if (platform === 'Amazon') {
+        debugInfo.amazonDebug = {
+          hasAmzn: html.toLowerCase().includes('amzn'),
+          hasAmazonAdsystem: html.toLowerCase().includes('amazon-adsystem'),
+          hasAax: html.toLowerCase().includes('aax'),
+          hasPixelId: html.toLowerCase().includes(pixelId.toLowerCase())
+        }
+      }
+
       return {
         success: true,
         html,
         pixelIdResult,
         vendorHit,
         externalHit,
-        method: 'browser-fallback'
+        method: 'browser-fallback',
+        debugInfo
       }
       
     } catch (fallbackError) {
