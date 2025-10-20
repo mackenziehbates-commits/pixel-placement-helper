@@ -637,7 +637,8 @@ async function detectExternalPixel(
     'Pinterest': [/pinterest\.com.*pt\.js/i],
     'LinkedIn': [/snap\.licdn\.com/i, /px\.ads\.linkedin\.com/i],
     'Snapchat': [/sc-static\.net/i],
-    'Xandr': [/acdn\.adnxs\.com.*pixie/i, /adnxs\.com/i]
+    'Xandr': [/acdn\.adnxs\.com.*pixie/i, /adnxs\.com/i],
+    'Amazon': [/amazon-adsystem\.com/i, /aax\.amazon-adsystem\.com/i]
   }
 
   const patterns = platformPatterns[platform] || []
@@ -706,6 +707,19 @@ function validatePixelId(html: string, platform: string, expectedId: string) {
     ],
     'Snapchat': [
       /snaptr\s*\(\s*['"]init['"]\s*,\s*['"]([^'"]+)['"]/i
+    ],
+    'Amazon': [
+      /amzn\s*\(\s*['"]addTag['"]\s*,\s*['"]([^'"]+)['"]/i,
+      /amzn\s*\(\s*['"]setRegion['"]\s*,\s*['"]([^'"]+)['"]/i,
+      /amzn\s*\(\s*['"]trackEvent['"]\s*,\s*['"]([^'"]+)['"]/i,
+      /amazon-adsystem\.com.*id=([^&]+)/i,
+      /aax\.amazon-adsystem\.com.*id=([^&]+)/i
+    ],
+    'Xandr': [
+      /pixie\s*\(\s*['"]init['"]\s*,\s*['"]([^'"]+)['"]/i,
+      /pixie\s*\(\s*['"]event['"]\s*,\s*['"]([^'"]+)['"]/i,
+      /adnxs\.com.*id=([^&]+)/i,
+      /acdn\.adnxs\.com.*id=([^&]+)/i
     ]
   }
 
