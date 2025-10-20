@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
         // Process browser results
         const { pixelIdResult, vendorHit, externalHit } = browserResult
         
-        if (pixelIdResult.found && pixelIdResult.match) {
+        if (pixelIdResult && pixelIdResult.found && pixelIdResult.match) {
           console.log('Browser detection found pixel ID')
           return NextResponse.json({
             status: 'pass',
