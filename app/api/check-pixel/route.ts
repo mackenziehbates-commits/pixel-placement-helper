@@ -933,7 +933,7 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
     
     // Add Amazon-specific debug info
     if (platform === 'Amazon') {
-      debugInfo.amazonDebug = {
+      (debugInfo as any).amazonDebug = {
         hasAmzn: html.toLowerCase().includes('amzn'),
         hasAmazonAdsystem: html.toLowerCase().includes('amazon-adsystem'),
         hasAax: html.toLowerCase().includes('aax'),
@@ -1019,7 +1019,7 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
       
       // Add Amazon-specific debug info
       if (platform === 'Amazon') {
-        debugInfo.amazonDebug = {
+        (debugInfo as any).amazonDebug = {
           hasAmzn: html.toLowerCase().includes('amzn'),
           hasAmazonAdsystem: html.toLowerCase().includes('amazon-adsystem'),
           hasAax: html.toLowerCase().includes('aax'),
