@@ -877,6 +877,32 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
       console.log('Pixel ID not found in HTML')
     }
     
+    // Additional Amazon debugging
+    if (platform === 'Amazon') {
+      console.log('Amazon debug:')
+      console.log('Looking for pixel ID:', pixelId)
+      console.log('HTML contains amzn:', html.toLowerCase().includes('amzn'))
+      console.log('HTML contains amazon-adsystem:', html.toLowerCase().includes('amazon-adsystem'))
+      console.log('HTML contains aax:', html.toLowerCase().includes('aax'))
+      console.log('HTML contains pixel ID:', html.toLowerCase().includes(pixelId.toLowerCase()))
+      
+      // Show a sample of the HTML to see what's actually there
+      const amznIndex = html.toLowerCase().indexOf('amzn')
+      if (amznIndex > -1) {
+        console.log('Found amzn at index:', amznIndex)
+        console.log('Context around amzn:', html.substring(Math.max(0, amznIndex - 50), Math.min(html.length, amznIndex + 200)))
+      } else {
+        console.log('No amzn found in HTML')
+      }
+      
+      // Check for any Amazon-related content
+      const amazonIndex = html.toLowerCase().indexOf('amazon')
+      if (amazonIndex > -1) {
+        console.log('Found amazon at index:', amazonIndex)
+        console.log('Context around amazon:', html.substring(Math.max(0, amazonIndex - 50), Math.min(html.length, amazonIndex + 200)))
+      }
+    }
+    
     return {
       success: true,
       html,
@@ -913,6 +939,29 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
       
       // Check for external scripts
       const externalHit = await detectExternalPixel(root, platform, '', eventName)
+      
+      // Debug: Check if pixel ID is in the HTML at all
+      const hasPixelId = html.toLowerCase().includes(pixelId.toLowerCase())
+      console.log('Fallback - HTML contains pixel ID:', hasPixelId)
+      
+      // Additional Amazon debugging for fallback
+      if (platform === 'Amazon') {
+        console.log('Fallback - Amazon debug:')
+        console.log('Looking for pixel ID:', pixelId)
+        console.log('HTML contains amzn:', html.toLowerCase().includes('amzn'))
+        console.log('HTML contains amazon-adsystem:', html.toLowerCase().includes('amazon-adsystem'))
+        console.log('HTML contains aax:', html.toLowerCase().includes('aax'))
+        console.log('HTML contains pixel ID:', html.toLowerCase().includes(pixelId.toLowerCase()))
+        
+        // Show a sample of the HTML to see what's actually there
+        const amznIndex = html.toLowerCase().indexOf('amzn')
+        if (amznIndex > -1) {
+          console.log('Found amzn at index:', amznIndex)
+          console.log('Context around amzn:', html.substring(Math.max(0, amznIndex - 50), Math.min(html.length, amznIndex + 200)))
+        } else {
+          console.log('No amzn found in HTML')
+        }
+      }
       
       return {
         success: true,
