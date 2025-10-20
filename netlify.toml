@@ -1,0 +1,13 @@
+[build]
+  command = "npm run build"
+  functions = "netlify/functions"
+
+[build.environment]
+  PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "false"
+  PUPPETEER_EXECUTABLE_PATH = "/usr/bin/google-chrome-stable"
+
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+
+[functions]
+  directory = "netlify/functions"

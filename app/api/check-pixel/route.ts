@@ -805,6 +805,7 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
     console.log('Launching browser for GTM detection...')
     browser = await puppeteer.launch({
       headless: true,
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -813,7 +814,9 @@ async function checkPixelWithBrowser(url: string, platform: string, pixelId: str
         '--no-first-run',
         '--no-zygote',
         '--single-process',
-        '--disable-gpu'
+        '--disable-gpu',
+        '--disable-web-security',
+        '--disable-features=VizDisplayCompositor'
       ]
     })
     
