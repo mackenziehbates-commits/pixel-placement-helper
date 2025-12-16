@@ -101,7 +101,7 @@ export function PixelChecker({ onCheck, isLoading }: PixelCheckerProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Website URL *
@@ -111,7 +111,7 @@ export function PixelChecker({ onCheck, isLoading }: PixelCheckerProps) {
           value={formData.url}
           onChange={(e) => handleChange('url', e.target.value)}
           placeholder="https://example.com"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
           required
         />
       </div>
@@ -123,7 +123,7 @@ export function PixelChecker({ onCheck, isLoading }: PixelCheckerProps) {
         <select
           value={formData.platform}
           onChange={(e) => handleChange('platform', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
           required
         >
           <option value="">Select platform</option>
@@ -140,7 +140,7 @@ export function PixelChecker({ onCheck, isLoading }: PixelCheckerProps) {
         <select
           value={formData.placementMethod}
           onChange={(e) => handleChange('placementMethod', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
           required
         >
           {PLACEMENT_METHODS.map(method => (
@@ -162,7 +162,7 @@ export function PixelChecker({ onCheck, isLoading }: PixelCheckerProps) {
         <select
           value={formData.placement}
           onChange={(e) => handleChange('placement', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
           required
         >
           <option value="">Select placement</option>
@@ -177,14 +177,14 @@ export function PixelChecker({ onCheck, isLoading }: PixelCheckerProps) {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             URL must contain *
           </label>
-          <input
-            type="text"
-            value={formData.triggerContains}
-            onChange={(e) => handleChange('triggerContains', e.target.value)}
-            placeholder="e.g., northlakebargaincenter.com/"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
+            <input
+              type="text"
+              value={formData.triggerContains}
+              onChange={(e) => handleChange('triggerContains', e.target.value)}
+              placeholder="e.g., northlakebargaincenter.com/"
+              className="w-full px-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              required
+            />
         </div>
       )}
 
@@ -197,7 +197,7 @@ export function PixelChecker({ onCheck, isLoading }: PixelCheckerProps) {
           value={formData.eventName}
           onChange={(e) => handleChange('eventName', e.target.value)}
           placeholder="e.g., Purchase, PageView, AddToCart"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
         />
       </div>
 
@@ -210,7 +210,7 @@ export function PixelChecker({ onCheck, isLoading }: PixelCheckerProps) {
           value={formData.pixelId}
           onChange={(e) => handleChange('pixelId', e.target.value)}
           placeholder="e.g., 529220869977378 (Facebook), G-XXXXXXXXX (Google)"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
           required
         />
       </div>
@@ -226,7 +226,7 @@ export function PixelChecker({ onCheck, isLoading }: PixelCheckerProps) {
             onPaste={handlePaste}
             placeholder="Paste your base pixel code here (e.g., initialization code)..."
             rows={6}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+            className="w-full px-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors font-mono"
           />
           <div className="flex gap-2">
             <button
@@ -265,7 +265,7 @@ export function PixelChecker({ onCheck, isLoading }: PixelCheckerProps) {
                   : "Paste your event code here (e.g., gtag('event', 'purchase'))..."
               }
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+              className="w-full px-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors font-mono"
             />
             <div className="text-sm text-gray-500">
               {formData.platform === 'Xandr' 
@@ -280,7 +280,7 @@ export function PixelChecker({ onCheck, isLoading }: PixelCheckerProps) {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg text-base font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md hover:shadow-lg"
       >
         {isLoading ? 'Checking...' : 'Check Pixel Placement'}
       </button>
