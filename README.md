@@ -121,3 +121,6 @@ Future features planned:
 - Historical tracking
 - Export results to Excel
 - Support for GTM (Google Tag Manager) pixels
+
+
+

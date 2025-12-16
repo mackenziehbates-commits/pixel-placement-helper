@@ -19,3 +19,6 @@ apt-get install -y google-chrome-stable
 npx puppeteer browsers install chrome
 
 echo "Chrome installation complete!"
+
+
+

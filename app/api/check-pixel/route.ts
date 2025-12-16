@@ -95,6 +95,24 @@ export async function POST(request: NextRequest) {
           })
         }
         
+        // Only use vendor/external detection if pixel ID matches OR no pixel ID was provided
+        // If pixel ID was provided but doesn't match, we should fail
+        if (pixelIdResult && (!pixelIdResult.found || !pixelIdResult.match)) {
+          // Pixel ID was provided but doesn't match - fail even if vendor patterns found
+          return NextResponse.json({
+            status: 'fail',
+            summary: pixelIdResult.mismatch 
+              ? `Pixel ID mismatch: Expected ${pixelId}, found ${pixelIdResult.foundId || 'none'}`
+              : `Pixel ID not found: Expected ${pixelId} but not found in website code`,
+            detectedPlacement: 'Not found',
+            troubleshooting: `The provided pixel ID (${pixelId}) was not found in the website code. Please verify the pixel ID is correct and the pixel is properly implemented.`,
+            issues: [],
+            pixelIdResult,
+            method: 'browser',
+            debugInfo: { ...basicDebugInfo, ...browserResult.debugInfo }
+          })
+        }
+        
         if (vendorHit) {
           console.log('Browser detection found vendor pattern')
           return NextResponse.json({
@@ -104,7 +122,9 @@ export async function POST(request: NextRequest) {
             matchedCode: vendorHit.context,
             troubleshooting: 'No specific issues detected',
             issues: [],
-            method: 'browser'
+            pixelIdResult,
+            method: 'browser',
+            debugInfo: { ...basicDebugInfo, ...browserResult.debugInfo }
           })
         }
         
@@ -117,7 +137,9 @@ export async function POST(request: NextRequest) {
             matchedCode: externalHit.context,
             troubleshooting: 'No specific issues detected',
             issues: [],
-            method: 'browser'
+            pixelIdResult,
+            method: 'browser',
+            debugInfo: { ...basicDebugInfo, ...browserResult.debugInfo }
           })
         }
       }
@@ -159,6 +181,9 @@ async function checkPixelPlacement(
   pixelId?: string,
   eventSnippet?: string
 ) {
+  // Declare pixelIdResult at function level for access throughout
+  let pixelIdResult: ReturnType<typeof validatePixelId> | null = null
+
   // Normalize the snippet for comparison (remove extra whitespace, normalize quotes)
   const normalizedSnippet = snippet ? snippet
     .replace(/\s+/g, ' ')
@@ -311,41 +336,68 @@ async function checkPixelPlacement(
     console.log('TikTok tracking terms:', { hasTracking, hasPixel })
   }
   
-  if (!snippetFound) {
-    console.log('Snippet not found, trying fallback detection...')
-    
-    // Try vendor-specific detection first
-    const vendorHit = detectVendorPixel(root, platform, snippet, eventName)
-    console.log('Vendor hit:', vendorHit)
-    
-    if (vendorHit) {
-      const placementGuess = root.querySelector('head')?.toString().includes(vendorHit.matchFragment) ? 'Found in <head> section' :
-        (root.querySelector('body')?.toString().includes(vendorHit.matchFragment) ? 'Found in <body> section' : 'Found in page but placement unclear')
+  // CRITICAL: Validate pixel ID FIRST if provided - this must match or we fail
+  if (pixelId) {
+    pixelIdResult = validatePixelId(html, platform, pixelId)
+    // If pixel ID is provided but doesn't match, fail immediately
+    if (!pixelIdResult.found || !pixelIdResult.match) {
       return {
-        status: 'pass',
-        summary: 'Pixel detected by vendor signature (fuzzy match)',
-        detectedPlacement: placementGuess,
-        matchedCode: vendorHit.context,
-        troubleshooting: 'No specific issues detected',
+        status: 'fail',
+        summary: pixelIdResult.mismatch 
+          ? `Pixel ID mismatch: Expected ${pixelId}, found ${pixelIdResult.foundId || 'none'}`
+          : `Pixel ID not found: Expected ${pixelId} but not found in website code`,
+        detectedPlacement: 'Not found',
+        troubleshooting: `The provided pixel ID (${pixelId}) was not found in the website code. Please verify the pixel ID is correct and the pixel is properly implemented.`,
         issues: [],
+        pixelIdResult,
         aiExplanation: null
       }
     }
+    // If pixel ID matches, we found the pixel!
+    snippetFound = true
+  }
 
-    // Try external script detection
-    console.log('Trying external script detection...')
-    const externalHit = await detectExternalPixel(root, platform, snippet, eventName)
-    console.log('External hit:', externalHit)
+  if (!snippetFound) {
+    console.log('Snippet not found, trying fallback detection...')
     
-    if (externalHit) {
-      return {
-        status: 'pass',
-        summary: 'Pixel detected via external script loading',
-        detectedPlacement: externalHit.placement,
-        matchedCode: externalHit.context,
-        troubleshooting: 'No specific issues detected',
-        issues: [],
-        aiExplanation: null
+    // Only use fallback detection if no pixel ID was provided
+    // If pixel ID was provided, we already validated it above
+    if (!pixelId) {
+      // Try vendor-specific detection first
+      const vendorHit = detectVendorPixel(root, platform, snippet, eventName)
+      console.log('Vendor hit:', vendorHit)
+      
+      if (vendorHit) {
+        const placementGuess = root.querySelector('head')?.toString().includes(vendorHit.matchFragment) ? 'Found in <head> section' :
+          (root.querySelector('body')?.toString().includes(vendorHit.matchFragment) ? 'Found in <body> section' : 'Found in page but placement unclear')
+        return {
+          status: 'pass',
+          summary: 'Pixel detected by vendor signature (fuzzy match)',
+          detectedPlacement: placementGuess,
+          matchedCode: vendorHit.context,
+          troubleshooting: 'No specific issues detected',
+          issues: [],
+          pixelIdResult,
+          aiExplanation: null
+        }
+      }
+
+      // Try external script detection
+      console.log('Trying external script detection...')
+      const externalHit = await detectExternalPixel(root, platform, snippet, eventName)
+      console.log('External hit:', externalHit)
+      
+      if (externalHit) {
+        return {
+          status: 'pass',
+          summary: 'Pixel detected via external script loading',
+          detectedPlacement: externalHit.placement,
+          matchedCode: externalHit.context,
+          troubleshooting: 'No specific issues detected',
+          issues: [],
+          pixelIdResult,
+          aiExplanation: null
+        }
       }
     }
 
@@ -355,6 +407,8 @@ async function checkPixelPlacement(
       summary: 'Pixel snippet not found on the page',
       detectedPlacement: 'Not found',
       troubleshooting: 'The provided pixel snippet was not found anywhere on the page. Please verify the snippet is correct and has been properly implemented.',
+      issues: [],
+      pixelIdResult,
       aiExplanation: null
     }
   }
@@ -441,10 +495,8 @@ async function checkPixelPlacement(
     }
   }
 
-  // Pixel ID validation and search
-  let pixelIdResult = null
-  if (pixelId) {
-    pixelIdResult = validatePixelId(html, platform, pixelId)
+  // Pixel ID validation (already done earlier if pixelId provided, but check again for issues)
+  if (pixelId && pixelIdResult) {
     if (pixelIdResult.mismatch) {
       issues.push(`Pixel ID mismatch: Expected ${pixelId}, found ${pixelIdResult.foundId}`)
     }
@@ -454,6 +506,12 @@ async function checkPixelPlacement(
       snippetFound = true
       detectedPlacement = 'Found via Pixel ID search'
       isCorrectPlacement = true
+    }
+  } else if (pixelId && !pixelIdResult) {
+    // This shouldn't happen since we validate earlier, but just in case
+    pixelIdResult = validatePixelId(html, platform, pixelId)
+    if (pixelIdResult.mismatch) {
+      issues.push(`Pixel ID mismatch: Expected ${pixelId}, found ${pixelIdResult.foundId}`)
     }
   }
 
